@@ -1,4 +1,6 @@
 ﻿using JobManager.Contracts;
+using JobManager.Domain;
+using JobManager.Domain.Events;
 using JobManagerImpl;
 using MediatR;
 
@@ -11,7 +13,7 @@ namespace JobManager.RequestHandlers
         {
             var job = Job.CreateJob(request.JobName);
             //Check to start
-            return Task.FromResult(new CreateJobResponse(job));
+            return Task.FromResult(new CreateJobResponse(job, new List<IJobEvent>() { new JobCreated(job) }));
         }
     }
 

@@ -22,14 +22,30 @@ services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ThreadSafeJobBehavior
 services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionHandlingBehavior<,>));
 
 var app = services.BuildServiceProvider();
-
 IMediator mediator = app.GetRequiredService<IMediator>();
-var result = await mediator.Send(new CreateJobRequest("PJ1"));
-Console.WriteLine($"Job id:{result.job.JobId}");
 
-var jobId = result.job.JobId;
+var createdJob = await mediator.Send(new CreateJobRequest("PJ1"));
+Console.WriteLine($"Job id:{createdJob.job.JobId}");
+foreach (var @event in createdJob.Events)
+{
+    Console.WriteLine($"Event:{@event.GetType().Name}");
+}
+
+var jobId = createdJob.job.JobId;
 var updatedJob = await mediator.Send(new UpdateJobRequest(jobId, "Run", false));
 Console.WriteLine($"Job state: {updatedJob.Job.State}");
+foreach (var @event in updatedJob.Events)
+{
+    Console.WriteLine($"Event:{@event.GetType().Name}");
+}
 
-await mediator.Send(new UpdateJobRequest(jobId, "Run", true));
+try
+{
+    await mediator.Send(new UpdateJobRequest(jobId, "Run", true));
+}
+catch
+{ }
+
+var jobData = await mediator.Send(new GetJobDataRequest(createdJob.job.Name));
+Console.WriteLine($"{jobData.JobName} {jobData.State}");
 

@@ -1,4 +1,6 @@
-﻿namespace JobManagerImpl
+﻿using JobManager.Domain;
+
+namespace JobManagerImpl
 {
     public class JobManager : IJobManager
     {
@@ -22,16 +24,19 @@
             job.State = state;
             return job;
         }
+
+        public Job? GetJobByName(string jobName)
+        {
+            return _jobs.FirstOrDefault(job => String.Equals(job.Name, jobName));
+        }
     }
 
-    public record Job(Guid JobId, string State, string Name)
-    {
-        public string State { get; internal set; } = State;
-    }
+
 
     public interface IJobManager
     {
         Job? CreateJob(string jobName);
         Job? UpdateState(Guid jobId, string state);
+        Job? GetJobByName(string jobName);
     }
 }

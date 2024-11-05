@@ -1,4 +1,6 @@
 ﻿using JobManager.Contracts;
+using JobManager.Domain;
+using JobManager.Domain.Events;
 using JobManagerImpl;
 using MediatR;
 
@@ -10,7 +12,7 @@ namespace JobManager.RequestHandlers
         {
             var job = Job.UpdateState(request.jobId, request.state);
             if (request.error) throw new ArgumentException("Test");
-            return Task.FromResult(new UpdateJobResponse(job));
+            return Task.FromResult(new UpdateJobResponse(job, new List<IJobEvent>() { new JobUpdated(job) }));
         }
     }
 
